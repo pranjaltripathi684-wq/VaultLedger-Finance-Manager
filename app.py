@@ -6,7 +6,7 @@ import random
 import hashlib
 import calendar
 from datetime import datetime, timedelta
-from flask import Flask, render_template, request, redirect, url_for, flash, Response
+from flask import Flask, jsonify, render_template, request, redirect, url_for, flash, Response, send_from_directory
 from db import get_db_connection
 
 app = Flask(__name__)
@@ -541,6 +541,7 @@ def get_budget_progress(conn):
             status = 'On Track'
 
         progress_list.append({
+            'id': b['id'],
             'category': cat,
             'limit': limit,
             'spent': spent,
@@ -683,10 +684,349 @@ def calculate_tax_estimation(total_income, total_expense):
 
 
 # ============================================================================
+# REACT API
+# ============================================================================
+
+def row_to_dict(row):
+    return {key: row[key] for key in row.keys()}
+
+
+def get_selected_currency(value):
+    currency = (value or 'USD').upper()
+    return currency if currency in DEFAULT_MARKET_RATES else 'USD'
+
+
+def build_dashboard_payload(currency):
+    conn = get_db_connection()
+    ensure_columns(conn)
+    transactions = conn.execute('SELECT * FROM transactions ORDER BY date DESC, id DESC').fetchall()
+    target_rate = DEFAULT_MARKET_RATES[currency]
+    factor = 1.0 / target_rate if target_rate else 1.0
+    total_income_usd = sum(row['amount'] * row['exchange_rate'] for row in transactions if row['type'] == 'income')
+    total_expense_usd = sum(row['amount'] * row['exchange_rate'] for row in transactions if row['type'] == 'expense')
+    balance_usd = total_income_usd - total_expense_usd
+    raw_budgets = get_budget_progress(conn)
+    ledger_valid, compromised_id, total_verified = verify_ledger_integrity(conn)
+    anomalies, flagged_ids = detect_anomalies(conn, transactions)
+    burn_usd = calculate_burn_rate_and_runway(total_expense_usd, balance_usd)
+    payload = {
+        'currency': currency,
+        'symbol': CURRENCY_SYMBOLS[currency],
+        'currencies': [{'code': code, 'symbol': symbol} for code, symbol in CURRENCY_SYMBOLS.items()],
+        'metrics': {
+            'income': round(total_income_usd * factor, 2),
+            'expenses': round(total_expense_usd * factor, 2),
+            'balance': round(balance_usd * factor, 2),
+            'health': calculate_financial_health(total_income_usd, total_expense_usd),
+            'burn': {
+                **burn_usd,
+                'daily_burn_rate': round(burn_usd['daily_burn_rate'] * factor, 2),
+                'safe_daily_spend': round(burn_usd['safe_daily_spend'] * factor, 2),
+            },
+            'comparison': get_month_comparison(conn),
+        },
+        'budgets': [{
+            **budget,
+            'limit': round(budget['limit'] * factor, 2),
+            'spent': round(budget['spent'] * factor, 2),
+            'remaining': round(budget['remaining'] * factor, 2),
+        } for budget in raw_budgets],
+        'transactions': [{**row_to_dict(row), 'display_amount': round(row['amount'] * row['exchange_rate'] * factor, 2), 'flag': flagged_ids.get(row['id'])} for row in transactions],
+        'sparkline': get_7day_sparkline_data(transactions, factor),
+        'ledger': {'valid': ledger_valid, 'compromisedId': compromised_id, 'verified': total_verified},
+        'anomalies': anomalies,
+    }
+    conn.close()
+    return payload
+
+
+@app.route('/api/dashboard')
+def api_dashboard():
+    return jsonify(build_dashboard_payload(get_selected_currency(request.args.get('currency'))))
+
+
+@app.route('/api/transactions', methods=['POST'])
+def api_add_transaction():
+    data = request.get_json(silent=True) or {}
+    required = ('title', 'amount', 'type', 'category', 'date')
+    if any(not str(data.get(field, '')).strip() for field in required):
+        return jsonify({'error': 'Title, amount, type, category, and date are required.'}), 400
+    try:
+        amount = float(data['amount'])
+        if amount <= 0 or data['type'] not in ('income', 'expense'):
+            raise ValueError
+        currency = get_selected_currency(data.get('currency'))
+        rate = float(data.get('exchange_rate') or DEFAULT_MARKET_RATES[currency])
+        if rate <= 0:
+            raise ValueError
+    except (TypeError, ValueError):
+        return jsonify({'error': 'Enter a valid positive amount and exchange rate.'}), 400
+
+    conn = get_db_connection()
+    ensure_columns(conn)
+    last = conn.execute('SELECT curr_hash FROM transactions ORDER BY id DESC LIMIT 1').fetchone()
+    previous_hash = last['curr_hash'] if last and last['curr_hash'] else GENESIS_HASH
+    title = str(data['title']).strip()
+    category = str(data['category']).strip()
+    notes = str(data.get('notes', '')).strip()
+    current_hash = compute_row_hash(previous_hash, str(data['date']), title, amount, data['type'], category, notes, currency, rate)
+    account_name = str(data.get('account_name') or 'Main Checking').strip()
+    cursor = conn.execute(
+        '''INSERT INTO transactions (title, amount, type, category, date, notes, currency, exchange_rate, account_name, prev_hash, curr_hash)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''',
+        (title, amount, data['type'], category, data['date'], notes, currency, rate, account_name, previous_hash, current_hash)
+    )
+    conn.commit()
+    transaction = conn.execute('SELECT * FROM transactions WHERE id = ?', (cursor.lastrowid,)).fetchone()
+    conn.close()
+    return jsonify({'transaction': row_to_dict(transaction)}), 201
+
+
+@app.route('/api/transactions/<int:transaction_id>', methods=['PUT', 'DELETE'])
+def api_transaction(transaction_id):
+    conn = get_db_connection()
+    ensure_columns(conn)
+    if request.method == 'PUT':
+        data = request.get_json(silent=True) or {}
+        required = ('title', 'amount', 'type', 'category', 'date')
+        if any(not str(data.get(field, '')).strip() for field in required):
+            conn.close()
+            return jsonify({'error': 'Title, amount, type, category, and date are required.'}), 400
+        try:
+            amount = float(data['amount'])
+            currency = get_selected_currency(data.get('currency'))
+            rate = float(data.get('exchange_rate') or DEFAULT_MARKET_RATES[currency])
+            if amount <= 0 or rate <= 0 or data['type'] not in ('income', 'expense'):
+                raise ValueError
+        except (TypeError, ValueError):
+            conn.close()
+            return jsonify({'error': 'Enter a valid positive amount and exchange rate.'}), 400
+        conn.execute('''UPDATE transactions SET title=?, amount=?, type=?, category=?, date=?, notes=?, currency=?, exchange_rate=?, account_name=? WHERE id=?''', (
+            str(data['title']).strip(), amount, data['type'], str(data['category']).strip(), data['date'],
+            str(data.get('notes', '')).strip(), currency, rate, str(data.get('account_name') or 'Main Checking').strip(), transaction_id
+        ))
+        conn.commit()
+        rebuild_ledger_chain(conn)
+        transaction = conn.execute('SELECT * FROM transactions WHERE id = ?', (transaction_id,)).fetchone()
+        conn.close()
+        if not transaction:
+            return jsonify({'error': 'Transaction not found.'}), 404
+        return jsonify({'transaction': row_to_dict(transaction)})
+    conn.execute('DELETE FROM transactions WHERE id = ?', (transaction_id,))
+    conn.execute('DELETE FROM dismissed_anomalies WHERE transaction_id = ?', (transaction_id,))
+    conn.commit()
+    rebuild_ledger_chain(conn)
+    conn.close()
+    return ('', 204)
+
+
+@app.route('/api/budgets', methods=['GET', 'POST'])
+def api_budgets():
+    conn = get_db_connection()
+    ensure_columns(conn)
+    if request.method == 'POST':
+        data = request.get_json(silent=True) or {}
+        category = str(data.get('category', '')).strip()
+        try:
+            limit = float(data.get('monthly_limit', 0))
+            if not category or limit <= 0:
+                raise ValueError
+        except (TypeError, ValueError):
+            conn.close()
+            return jsonify({'error': 'Provide a category and a positive monthly limit.'}), 400
+        conn.execute('''INSERT INTO budgets (category, monthly_limit) VALUES (?, ?)
+                        ON CONFLICT(category) DO UPDATE SET monthly_limit = excluded.monthly_limit''', (category, limit))
+        conn.commit()
+    currency = get_selected_currency(request.args.get('currency'))
+    factor = 1.0 / DEFAULT_MARKET_RATES[currency]
+    budgets = [{**budget, 'limit': round(budget['limit'] * factor, 2), 'spent': round(budget['spent'] * factor, 2)} for budget in get_budget_progress(conn)]
+    conn.close()
+    return jsonify({'currency': currency, 'symbol': CURRENCY_SYMBOLS[currency], 'budgets': budgets})
+
+
+@app.route('/api/budgets/<int:budget_id>', methods=['DELETE'])
+def api_delete_budget(budget_id):
+    conn = get_db_connection()
+    conn.execute('DELETE FROM budgets WHERE id = ?', (budget_id,))
+    conn.commit()
+    conn.close()
+    return ('', 204)
+
+
+@app.route('/api/analytics')
+def api_analytics():
+    conn = get_db_connection()
+    rows = conn.execute('''SELECT strftime('%Y-%m', date) AS month, type, SUM(amount * exchange_rate) AS total
+                           FROM transactions GROUP BY month, type ORDER BY month''').fetchall()
+    category_rows = conn.execute('''SELECT category, SUM(amount * exchange_rate) AS total FROM transactions
+                                    WHERE type = 'expense' GROUP BY category ORDER BY total DESC''').fetchall()
+    monthly = {}
+    for row in rows:
+        monthly.setdefault(row['month'], {'income': 0, 'expense': 0})[row['type']] = round(row['total'], 2)
+    months = sorted(monthly)
+    incomes = [monthly[month]['income'] for month in months]
+    expenses = [monthly[month]['expense'] for month in months]
+    conn.close()
+    return jsonify({
+        'months': months,
+        'income': incomes,
+        'expenses': expenses,
+        'categories': [row_to_dict(row) for row in category_rows],
+        'projection': run_monte_carlo_simulation(sum(incomes) - sum(expenses), incomes, expenses),
+    })
+
+
+@app.route('/api/hub')
+def api_hub():
+    currency = get_selected_currency(request.args.get('currency'))
+    factor = 1.0 / DEFAULT_MARKET_RATES[currency]
+    conn = get_db_connection()
+    ensure_columns(conn)
+    rows = conn.execute('SELECT type, amount, exchange_rate FROM transactions').fetchall()
+    income = sum(row['amount'] * row['exchange_rate'] for row in rows if row['type'] == 'income')
+    expenses = sum(row['amount'] * row['exchange_rate'] for row in rows if row['type'] == 'expense')
+    payload = {
+        'currency': currency,
+        'symbol': CURRENCY_SYMBOLS[currency],
+        'accounts': get_account_balances(conn, factor),
+        'subscriptions': get_upcoming_subscriptions(conn, factor),
+        'goals': get_savings_goals(conn, factor),
+        'tax': calculate_tax_estimation(income * factor, expenses * factor),
+    }
+    conn.close()
+    return jsonify(payload)
+
+
+@app.route('/api/accounts', methods=['POST'])
+def api_add_account():
+    data = request.get_json(silent=True) or {}
+    name = str(data.get('name', '')).strip()
+    try:
+        balance = float(data.get('initial_balance', 0))
+    except (TypeError, ValueError):
+        return jsonify({'error': 'Enter a valid starting balance.'}), 400
+    if not name:
+        return jsonify({'error': 'Account name is required.'}), 400
+    conn = get_db_connection()
+    ensure_columns(conn)
+    conn.execute('''INSERT INTO accounts (name, account_type, initial_balance, currency, color)
+                    VALUES (?, ?, ?, ?, ?)
+                    ON CONFLICT(name) DO UPDATE SET account_type=excluded.account_type, initial_balance=excluded.initial_balance, currency=excluded.currency, color=excluded.color''', (
+        name, str(data.get('account_type') or 'checking'), balance, get_selected_currency(data.get('currency')), str(data.get('color') or '#4b5fc0')
+    ))
+    conn.commit()
+    conn.close()
+    return jsonify({'message': 'Account saved.'}), 201
+
+
+@app.route('/api/subscriptions', methods=['POST'])
+def api_add_subscription():
+    data = request.get_json(silent=True) or {}
+    name = str(data.get('name', '')).strip()
+    due_date = str(data.get('next_due_date', '')).strip()
+    try:
+        amount = float(data.get('amount', 0))
+        if amount <= 0:
+            raise ValueError
+    except (TypeError, ValueError):
+        return jsonify({'error': 'Enter a positive subscription amount.'}), 400
+    if not name or not due_date:
+        return jsonify({'error': 'Name and next due date are required.'}), 400
+    conn = get_db_connection()
+    ensure_columns(conn)
+    conn.execute('''INSERT INTO subscriptions (name, amount, currency, billing_cycle, next_due_date, category)
+                    VALUES (?, ?, ?, ?, ?, ?)''', (
+        name, amount, get_selected_currency(data.get('currency')), str(data.get('billing_cycle') or 'monthly'), due_date,
+        str(data.get('category') or 'Software & Subscriptions').strip()
+    ))
+    conn.commit()
+    conn.close()
+    return jsonify({'message': 'Subscription added.'}), 201
+
+
+@app.route('/api/goals', methods=['POST'])
+def api_add_goal():
+    data = request.get_json(silent=True) or {}
+    title = str(data.get('title', '')).strip()
+    try:
+        target = float(data.get('target_amount', 0))
+        current = float(data.get('current_amount', 0))
+        if target <= 0 or current < 0:
+            raise ValueError
+    except (TypeError, ValueError):
+        return jsonify({'error': 'Enter a positive target and a valid starting amount.'}), 400
+    if not title:
+        return jsonify({'error': 'Goal title is required.'}), 400
+    conn = get_db_connection()
+    ensure_columns(conn)
+    conn.execute('''INSERT INTO savings_goals (title, target_amount, current_amount, target_date, currency, icon)
+                    VALUES (?, ?, ?, ?, ?, ?)''', (
+        title, target, current, data.get('target_date') or None, get_selected_currency(data.get('currency')), str(data.get('icon') or '🎯')
+    ))
+    conn.commit()
+    conn.close()
+    return jsonify({'message': 'Savings goal added.'}), 201
+
+
+@app.route('/api/goals/<int:goal_id>/deposit', methods=['POST'])
+def api_deposit_goal(goal_id):
+    data = request.get_json(silent=True) or {}
+    try:
+        amount = float(data.get('amount', 0))
+        if amount <= 0:
+            raise ValueError
+    except (TypeError, ValueError):
+        return jsonify({'error': 'Enter a positive deposit amount.'}), 400
+    conn = get_db_connection()
+    conn.execute('UPDATE savings_goals SET current_amount = current_amount + ? WHERE id = ?', (amount, goal_id))
+    conn.commit()
+    conn.close()
+    return jsonify({'message': 'Deposit recorded.'})
+
+
+@app.route('/api/anomalies/<int:transaction_id>/dismiss', methods=['POST'])
+def api_dismiss_anomaly(transaction_id):
+    conn = get_db_connection()
+    ensure_columns(conn)
+    conn.execute('INSERT OR IGNORE INTO dismissed_anomalies (transaction_id) VALUES (?)', (transaction_id,))
+    conn.commit()
+    conn.close()
+    return jsonify({'message': 'Alert dismissed.'})
+
+
+@app.route('/api/audit/verify', methods=['POST'])
+def api_verify_audit():
+    conn = get_db_connection()
+    ensure_columns(conn)
+    is_valid, bad_id, total_checked = verify_ledger_integrity(conn)
+    conn.close()
+    return jsonify({'valid': is_valid, 'compromisedId': bad_id, 'verified': total_checked})
+
+
+@app.route('/api/fx', methods=['GET', 'POST'])
+def api_fx_portfolio():
+    data = request.get_json(silent=True) or {}
+    rates = DEFAULT_MARKET_RATES.copy()
+    for currency, value in (data.get('rates') or {}).items():
+        if currency in rates and currency != 'USD':
+            try:
+                parsed = float(value)
+                if parsed > 0:
+                    rates[currency] = parsed
+            except (TypeError, ValueError):
+                pass
+    conn = get_db_connection()
+    ensure_columns(conn)
+    transactions = conn.execute('SELECT * FROM transactions ORDER BY id ASC').fetchall()
+    conn.close()
+    return jsonify({'rates': rates, 'analysis': calculate_fx_holdings_and_gains(transactions, rates)})
+
+
+# ============================================================================
 # 6. APPLICATION ROUTES
 # ============================================================================
 
-@app.route('/')
+@app.route('/legacy')
 def index():
     conn = get_db_connection()
     ensure_columns(conn)
@@ -1302,6 +1642,25 @@ def deposit_savings(id):
 
     conn.close()
     return redirect(url_for('index'))
+
+
+FRONTEND_DIST = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'frontend', 'dist')
+
+
+@app.route('/')
+@app.route('/<path:path>')
+def react_frontend(path=''):
+    """Serve the compiled React app while allowing Flask to own API routes."""
+    requested_file = os.path.join(FRONTEND_DIST, path)
+    if path and os.path.isfile(requested_file):
+        return send_from_directory(FRONTEND_DIST, path)
+    if os.path.isfile(os.path.join(FRONTEND_DIST, 'index.html')):
+        return send_from_directory(FRONTEND_DIST, 'index.html')
+    return Response(
+        'React client not built. Run `npm install` and `npm run build` in the frontend folder, or use `npm run dev` for development.',
+        status=503,
+        mimetype='text/plain'
+    )
 
 
 if __name__ == '__main__':

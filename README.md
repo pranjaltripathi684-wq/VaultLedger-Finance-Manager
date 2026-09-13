@@ -5,10 +5,11 @@
 [![Python](https://img.shields.io/badge/Python-3.9+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
 [![Flask](https://img.shields.io/badge/Flask-3.0+-000000?style=for-the-badge&logo=flask&logoColor=white)](https://flask.palletsprojects.com/)
 [![SQLite](https://img.shields.io/badge/SQLite-3-003B57?style=for-the-badge&logo=sqlite&logoColor=white)](https://sqlite.org)
-[![Chart.js](https://img.shields.io/badge/Chart.js-4.0+-FF6384?style=for-the-badge&logo=chartdotjs&logoColor=white)](https://www.chartjs.org/)
+[![React](https://img.shields.io/badge/React-18-61DAFB?style=for-the-badge&logo=react&logoColor=0b1020)](https://react.dev)
+[![Vite](https://img.shields.io/badge/Vite-5-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vite.dev)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
 
-An intelligent, self-hosted personal finance management web application built with **Python (Flask)**, **SQLite3**, and **Chart.js**. Designed with clean MVC architecture, actionable spending analytics, visual category budgets, and executive-level reporting.
+An intelligent, self-hosted personal finance management web application built with a **React + Vite frontend**, a **Flask JSON API**, and **SQLite3**. Designed with actionable spending analytics, visual category budgets, and executive-level reporting.
 
 [Explore Features](#-key-features) • [Architecture](#-architecture--data-flow) • [Quick Start](#-quick-start) • [Security & Design](#-security--design-principles)
 
@@ -54,10 +55,10 @@ The project strictly follows the **Model-View-Controller (MVC)** architectural p
 ```text
        ┌────────────────────────────────────────────────────────┐
        │                   Browser / Client                     │
-       │  (Jinja2 Templates, CSS Grids, Vanilla JS, Chart.js)   │
+       │  (React client, Vite build, responsive design system)  │
        └──────────────┬──────────────────────────▲──────────────┘
-                      │ HTTP Requests            │ HTML Responses /
-                      │ (GET, POST)              │ Streamed CSV
+                      │ JSON API requests        │ React application /
+                      │                          │ Streamed CSV
                       ▼                          │
        ┌─────────────────────────────────────────┴──────────────┐
        │                   Flask Controllers                    │
@@ -97,8 +98,22 @@ python db.py
  Run the Application:
 python app.py
 
-Open your browser and navigate to:
-http://127.0.0.1:5000
+In a second terminal, start the React client for development:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Open http://127.0.0.1:5173. The Vite dev server forwards `/api` requests to Flask.
+
+For production, build the frontend once and Flask will serve it at `http://127.0.0.1:5000`:
+
+```bash
+cd frontend
+npm run build
+```
 
 🛡️ Security & Design Principles
 SQL Injection Immunization: All database interactions use parameterized queries (? syntax). User inputs are never interpolated directly into SQL statements.

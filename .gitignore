@@ -21,3 +21,6 @@ ENV/
 # Operating System files
 .DS_Store
 Thumbs.db
+
+# React / Vite dependencies
+frontend/node_modules/
