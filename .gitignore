@@ -13,6 +13,12 @@ env/
 ENV/
 .venv/
 
+# PyInstaller builds
+build/
+*.spec
+FinanceTracker.exe
+FinanceTracker.pkg
+
 # IDE / Editor configuration
 .vscode/
 .idea/
