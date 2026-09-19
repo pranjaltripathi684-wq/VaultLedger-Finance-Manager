@@ -820,6 +820,42 @@ def api_transaction(transaction_id):
     return ('', 204)
 
 
+@app.route('/api/transactions/bulk', methods=['POST'])
+def api_bulk_transactions():
+    data = request.get_json(silent=True) or {}
+    action = data.get('action')
+    selected_ids = [int(i) for i in data.get('ids', []) if str(i).isdigit()]
+    if not selected_ids:
+        return jsonify({'error': 'No valid transactions selected.'}), 400
+
+    conn = get_db_connection()
+    ensure_columns(conn)
+
+    if action == 'delete':
+        for tid in selected_ids:
+            conn.execute('DELETE FROM transactions WHERE id = ?', (tid,))
+            conn.execute('DELETE FROM dismissed_anomalies WHERE transaction_id = ?', (tid,))
+        conn.commit()
+        rebuild_ledger_chain(conn)
+        conn.close()
+        return jsonify({'message': f'Deleted {len(selected_ids)} transactions.'})
+
+    elif action == 'recategorize':
+        new_cat = str(data.get('new_category', '')).strip()
+        if not new_cat:
+            conn.close()
+            return jsonify({'error': 'Category name required for recategorization.'}), 400
+        for tid in selected_ids:
+            conn.execute('UPDATE transactions SET category = ? WHERE id = ?', (new_cat, tid))
+        conn.commit()
+        rebuild_ledger_chain(conn)
+        conn.close()
+        return jsonify({'message': f'Recategorized {len(selected_ids)} transactions.'})
+
+    conn.close()
+    return jsonify({'error': 'Invalid bulk action.'}), 400
+
+
 @app.route('/api/budgets', methods=['GET', 'POST'])
 def api_budgets():
     conn = get_db_connection()

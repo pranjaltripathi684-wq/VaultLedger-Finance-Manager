@@ -78,7 +78,7 @@ Python 3.9 or newer installed on your machine.
 Git installed.
 
 # Clone the repository
-git clone https://github.com/YOUR_USERNAME/Finance-Manager.git
+git clone https://github.com/pranjaltripathi684-wq/Finance-Manager.git
 cd Finance-Manager
 
 # (Optional) Create and activate a virtual environment

@@ -1,0 +1,597 @@
+('C:\\Users\\Pranjal '
+ 'Tripathi\\OneDrive\\Desktop\\finance_manager\\Finance-Manager\\build\\FinanceTracker\\FinanceTracker.pkg',
+ {'BINARY': True,
+  'DATA': True,
+  'EXECUTABLE': True,
+  'EXTENSION': True,
+  'PYMODULE': True,
+  'PYSOURCE': True,
+  'PYZ': False,
+  'SPLASH': True,
+  'SYMLINK': False},
+ [('pyi-contents-directory _internal', '', 'OPTION'),
+  ('PYZ-00.pyz',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\OneDrive\\Desktop\\finance_manager\\Finance-Manager\\build\\FinanceTracker\\PYZ-00.pyz',
+   'PYZ'),
+  ('struct',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\OneDrive\\Desktop\\finance_manager\\Finance-Manager\\build\\FinanceTracker\\localpycs\\struct.pyc',
+   'PYMODULE'),
+  ('pyimod01_archive',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\OneDrive\\Desktop\\finance_manager\\Finance-Manager\\build\\FinanceTracker\\localpycs\\pyimod01_archive.pyc',
+   'PYMODULE'),
+  ('pyimod02_importers',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\OneDrive\\Desktop\\finance_manager\\Finance-Manager\\build\\FinanceTracker\\localpycs\\pyimod02_importers.pyc',
+   'PYMODULE'),
+  ('pyimod03_ctypes',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\OneDrive\\Desktop\\finance_manager\\Finance-Manager\\build\\FinanceTracker\\localpycs\\pyimod03_ctypes.pyc',
+   'PYMODULE'),
+  ('pyimod04_pywin32',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\OneDrive\\Desktop\\finance_manager\\Finance-Manager\\build\\FinanceTracker\\localpycs\\pyimod04_pywin32.pyc',
+   'PYMODULE'),
+  ('pyiboot01_bootstrap',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages\\PyInstaller\\loader\\pyiboot01_bootstrap.py',
+   'PYSOURCE'),
+  ('pyi_rth_inspect',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages\\PyInstaller\\hooks\\rthooks\\pyi_rth_inspect.py',
+   'PYSOURCE'),
+  ('pyi_rth_pkgutil',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages\\PyInstaller\\hooks\\rthooks\\pyi_rth_pkgutil.py',
+   'PYSOURCE'),
+  ('pyi_rth_multiprocessing',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages\\PyInstaller\\hooks\\rthooks\\pyi_rth_multiprocessing.py',
+   'PYSOURCE'),
+  ('pyi_rth_cryptography_openssl',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\rthooks\\pyi_rth_cryptography_openssl.py',
+   'PYSOURCE'),
+  ('pyi_rth_setuptools',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages\\PyInstaller\\hooks\\rthooks\\pyi_rth_setuptools.py',
+   'PYSOURCE'),
+  ('app',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\OneDrive\\Desktop\\finance_manager\\Finance-Manager\\app.py',
+   'PYSOURCE'),
+  ('python314.dll',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\python314.dll',
+   'BINARY'),
+  ('select.pyd',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\DLLs\\select.pyd',
+   'EXTENSION'),
+  ('_socket.pyd',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\DLLs\\_socket.pyd',
+   'EXTENSION'),
+  ('unicodedata.pyd',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\DLLs\\unicodedata.pyd',
+   'EXTENSION'),
+  ('_zstd.pyd',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\DLLs\\_zstd.pyd',
+   'EXTENSION'),
+  ('_lzma.pyd',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\DLLs\\_lzma.pyd',
+   'EXTENSION'),
+  ('_bz2.pyd',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\DLLs\\_bz2.pyd',
+   'EXTENSION'),
+  ('_ssl.pyd',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\DLLs\\_ssl.pyd',
+   'EXTENSION'),
+  ('_overlapped.pyd',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\DLLs\\_overlapped.pyd',
+   'EXTENSION'),
+  ('_asyncio.pyd',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\DLLs\\_asyncio.pyd',
+   'EXTENSION'),
+  ('_queue.pyd',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\DLLs\\_queue.pyd',
+   'EXTENSION'),
+  ('_ctypes.pyd',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\DLLs\\_ctypes.pyd',
+   'EXTENSION'),
+  ('_hashlib.pyd',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\DLLs\\_hashlib.pyd',
+   'EXTENSION'),
+  ('_multiprocessing.pyd',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\DLLs\\_multiprocessing.pyd',
+   'EXTENSION'),
+  ('pyexpat.pyd',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\DLLs\\pyexpat.pyd',
+   'EXTENSION'),
+  ('_decimal.pyd',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\DLLs\\_decimal.pyd',
+   'EXTENSION'),
+  ('_wmi.pyd',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\DLLs\\_wmi.pyd',
+   'EXTENSION'),
+  ('_sqlite3.pyd',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\DLLs\\_sqlite3.pyd',
+   'EXTENSION'),
+  ('_uuid.pyd',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\DLLs\\_uuid.pyd',
+   'EXTENSION'),
+  ('_cffi_backend.cp314-win_amd64.pyd',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages\\_cffi_backend.cp314-win_amd64.pyd',
+   'EXTENSION'),
+  ('bcrypt\\_bcrypt.pyd',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages\\bcrypt\\_bcrypt.pyd',
+   'EXTENSION'),
+  ('cryptography\\hazmat\\bindings\\_rust.pyd',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages\\cryptography\\hazmat\\bindings\\_rust.pyd',
+   'EXTENSION'),
+  ('markupsafe\\_speedups.cp314-win_amd64.pyd',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages\\markupsafe\\_speedups.cp314-win_amd64.pyd',
+   'EXTENSION'),
+  ('api-ms-win-crt-process-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-crt-process-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-crt-heap-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-crt-heap-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-crt-time-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-crt-time-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-crt-environment-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-crt-environment-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-crt-string-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-crt-string-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-crt-runtime-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-crt-runtime-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-crt-math-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-crt-math-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-crt-conio-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-crt-conio-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-crt-locale-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-crt-locale-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-crt-filesystem-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-crt-filesystem-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-crt-convert-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-crt-convert-l1-1-0.dll',
+   'BINARY'),
+  ('VCRUNTIME140.dll',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\VCRUNTIME140.dll',
+   'BINARY'),
+  ('api-ms-win-crt-stdio-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-crt-stdio-l1-1-0.dll',
+   'BINARY'),
+  ('libcrypto-3.dll',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\DLLs\\libcrypto-3.dll',
+   'BINARY'),
+  ('libssl-3.dll',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\DLLs\\libssl-3.dll',
+   'BINARY'),
+  ('libffi-8.dll',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\DLLs\\libffi-8.dll',
+   'BINARY'),
+  ('api-ms-win-crt-utility-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-crt-utility-l1-1-0.dll',
+   'BINARY'),
+  ('VCRUNTIME140_1.dll',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\VCRUNTIME140_1.dll',
+   'BINARY'),
+  ('sqlite3.dll',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\DLLs\\sqlite3.dll',
+   'BINARY'),
+  ('python3.dll',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\python3.dll',
+   'BINARY'),
+  ('api-ms-win-core-synch-l1-2-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-core-synch-l1-2-0.dll',
+   'BINARY'),
+  ('ucrtbase.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\ucrtbase.dll',
+   'BINARY'),
+  ('api-ms-win-core-memory-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-core-memory-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-namedpipe-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-core-namedpipe-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-processthreads-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-core-processthreads-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-errorhandling-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-core-errorhandling-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-sysinfo-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-core-sysinfo-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-processenvironment-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-core-processenvironment-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-file-l2-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-core-file-l2-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-util-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-core-util-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-debug-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-core-debug-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-file-l1-2-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-core-file-l1-2-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-console-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-core-console-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-localization-l1-2-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-core-localization-l1-2-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-profile-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-core-profile-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-datetime-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-core-datetime-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-libraryloader-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-core-libraryloader-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-processthreads-l1-1-1.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-core-processthreads-l1-1-1.dll',
+   'BINARY'),
+  ('api-ms-win-core-handle-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-core-handle-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-interlocked-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-core-interlocked-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-synch-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-core-synch-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-rtlsupport-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-core-rtlsupport-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-string-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-core-string-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-file-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-core-file-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-timezone-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-core-timezone-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-heap-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-core-heap-l1-1-0.dll',
+   'BINARY'),
+  ('frontend\\dist\\assets\\index-CnLAE8w8.js',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\OneDrive\\Desktop\\finance_manager\\Finance-Manager\\frontend\\dist\\assets\\index-CnLAE8w8.js',
+   'DATA'),
+  ('frontend\\dist\\assets\\index-dDM43jAW.css',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\OneDrive\\Desktop\\finance_manager\\Finance-Manager\\frontend\\dist\\assets\\index-dDM43jAW.css',
+   'DATA'),
+  ('frontend\\dist\\index.html',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\OneDrive\\Desktop\\finance_manager\\Finance-Manager\\frontend\\dist\\index.html',
+   'DATA'),
+  ('schema.sql',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\OneDrive\\Desktop\\finance_manager\\Finance-Manager\\schema.sql',
+   'DATA'),
+  ('static\\css\\components.css',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\OneDrive\\Desktop\\finance_manager\\Finance-Manager\\static\\css\\components.css',
+   'DATA'),
+  ('static\\css\\dashboard.css',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\OneDrive\\Desktop\\finance_manager\\Finance-Manager\\static\\css\\dashboard.css',
+   'DATA'),
+  ('static\\css\\theme.css',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\OneDrive\\Desktop\\finance_manager\\Finance-Manager\\static\\css\\theme.css',
+   'DATA'),
+  ('static\\styles.css',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\OneDrive\\Desktop\\finance_manager\\Finance-Manager\\static\\styles.css',
+   'DATA'),
+  ('templates\\add_transaction.html',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\OneDrive\\Desktop\\finance_manager\\Finance-Manager\\templates\\add_transaction.html',
+   'DATA'),
+  ('templates\\analytics.html',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\OneDrive\\Desktop\\finance_manager\\Finance-Manager\\templates\\analytics.html',
+   'DATA'),
+  ('templates\\base.html',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\OneDrive\\Desktop\\finance_manager\\Finance-Manager\\templates\\base.html',
+   'DATA'),
+  ('templates\\budgets.html',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\OneDrive\\Desktop\\finance_manager\\Finance-Manager\\templates\\budgets.html',
+   'DATA'),
+  ('templates\\edit_transaction.html',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\OneDrive\\Desktop\\finance_manager\\Finance-Manager\\templates\\edit_transaction.html',
+   'DATA'),
+  ('templates\\financial_hub.html',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\OneDrive\\Desktop\\finance_manager\\Finance-Manager\\templates\\financial_hub.html',
+   'DATA'),
+  ('templates\\fx_portfolio.html',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\OneDrive\\Desktop\\finance_manager\\Finance-Manager\\templates\\fx_portfolio.html',
+   'DATA'),
+  ('templates\\index.html',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\OneDrive\\Desktop\\finance_manager\\Finance-Manager\\templates\\index.html',
+   'DATA'),
+  ('cryptography-50.0.1.dist-info\\licenses\\LICENSE.BSD',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages\\cryptography-50.0.1.dist-info\\licenses\\LICENSE.BSD',
+   'DATA'),
+  ('cryptography-50.0.1.dist-info\\licenses\\LICENSE.APACHE',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages\\cryptography-50.0.1.dist-info\\licenses\\LICENSE.APACHE',
+   'DATA'),
+  ('cryptography-50.0.1.dist-info\\sboms\\sbom.json',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages\\cryptography-50.0.1.dist-info\\sboms\\sbom.json',
+   'DATA'),
+  ('cryptography-50.0.1.dist-info\\RECORD',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages\\cryptography-50.0.1.dist-info\\RECORD',
+   'DATA'),
+  ('cryptography-50.0.1.dist-info\\INSTALLER',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages\\cryptography-50.0.1.dist-info\\INSTALLER',
+   'DATA'),
+  ('cryptography-50.0.1.dist-info\\METADATA',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages\\cryptography-50.0.1.dist-info\\METADATA',
+   'DATA'),
+  ('cryptography-50.0.1.dist-info\\licenses\\LICENSE',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages\\cryptography-50.0.1.dist-info\\licenses\\LICENSE',
+   'DATA'),
+  ('cryptography-50.0.1.dist-info\\WHEEL',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages\\cryptography-50.0.1.dist-info\\WHEEL',
+   'DATA'),
+  ('cryptography-50.0.1.dist-info\\sboms\\cryptography-rust.cyclonedx.json',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages\\cryptography-50.0.1.dist-info\\sboms\\cryptography-rust.cyclonedx.json',
+   'DATA'),
+  ('setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\INSTALLER',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\INSTALLER',
+   'DATA'),
+  ('setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\licenses\\LICENSE',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\licenses\\LICENSE',
+   'DATA'),
+  ('setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\top_level.txt',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\top_level.txt',
+   'DATA'),
+  ('setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\RECORD',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\RECORD',
+   'DATA'),
+  ('setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\METADATA',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\METADATA',
+   'DATA'),
+  ('setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\REQUESTED',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\REQUESTED',
+   'DATA'),
+  ('setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\WHEEL',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\WHEEL',
+   'DATA'),
+  ('setuptools\\_vendor\\jaraco\\text\\Lorem ipsum.txt',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages\\setuptools\\_vendor\\jaraco\\text\\Lorem '
+   'ipsum.txt',
+   'DATA'),
+  ('flask-3.1.3.dist-info\\METADATA',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages\\flask-3.1.3.dist-info\\METADATA',
+   'DATA'),
+  ('markupsafe-3.0.3.dist-info\\top_level.txt',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages\\markupsafe-3.0.3.dist-info\\top_level.txt',
+   'DATA'),
+  ('flask-3.1.3.dist-info\\licenses\\LICENSE.txt',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages\\flask-3.1.3.dist-info\\licenses\\LICENSE.txt',
+   'DATA'),
+  ('click-8.4.2.dist-info\\WHEEL',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages\\click-8.4.2.dist-info\\WHEEL',
+   'DATA'),
+  ('werkzeug-3.1.8.dist-info\\RECORD',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages\\werkzeug-3.1.8.dist-info\\RECORD',
+   'DATA'),
+  ('click-8.4.2.dist-info\\RECORD',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages\\click-8.4.2.dist-info\\RECORD',
+   'DATA'),
+  ('flask-3.1.3.dist-info\\WHEEL',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages\\flask-3.1.3.dist-info\\WHEEL',
+   'DATA'),
+  ('flask-3.1.3.dist-info\\RECORD',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages\\flask-3.1.3.dist-info\\RECORD',
+   'DATA'),
+  ('itsdangerous-2.2.0.dist-info\\LICENSE.txt',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages\\itsdangerous-2.2.0.dist-info\\LICENSE.txt',
+   'DATA'),
+  ('itsdangerous-2.2.0.dist-info\\WHEEL',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages\\itsdangerous-2.2.0.dist-info\\WHEEL',
+   'DATA'),
+  ('markupsafe-3.0.3.dist-info\\licenses\\LICENSE.txt',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages\\markupsafe-3.0.3.dist-info\\licenses\\LICENSE.txt',
+   'DATA'),
+  ('flask-3.1.3.dist-info\\REQUESTED',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages\\flask-3.1.3.dist-info\\REQUESTED',
+   'DATA'),
+  ('click-8.4.2.dist-info\\INSTALLER',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages\\click-8.4.2.dist-info\\INSTALLER',
+   'DATA'),
+  ('click-8.4.2.dist-info\\licenses\\LICENSE.txt',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages\\click-8.4.2.dist-info\\licenses\\LICENSE.txt',
+   'DATA'),
+  ('werkzeug-3.1.8.dist-info\\WHEEL',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages\\werkzeug-3.1.8.dist-info\\WHEEL',
+   'DATA'),
+  ('werkzeug-3.1.8.dist-info\\licenses\\LICENSE.txt',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages\\werkzeug-3.1.8.dist-info\\licenses\\LICENSE.txt',
+   'DATA'),
+  ('markupsafe-3.0.3.dist-info\\INSTALLER',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages\\markupsafe-3.0.3.dist-info\\INSTALLER',
+   'DATA'),
+  ('markupsafe-3.0.3.dist-info\\WHEEL',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages\\markupsafe-3.0.3.dist-info\\WHEEL',
+   'DATA'),
+  ('werkzeug-3.1.8.dist-info\\METADATA',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages\\werkzeug-3.1.8.dist-info\\METADATA',
+   'DATA'),
+  ('markupsafe-3.0.3.dist-info\\METADATA',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages\\markupsafe-3.0.3.dist-info\\METADATA',
+   'DATA'),
+  ('itsdangerous-2.2.0.dist-info\\RECORD',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages\\itsdangerous-2.2.0.dist-info\\RECORD',
+   'DATA'),
+  ('itsdangerous-2.2.0.dist-info\\INSTALLER',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages\\itsdangerous-2.2.0.dist-info\\INSTALLER',
+   'DATA'),
+  ('flask-3.1.3.dist-info\\entry_points.txt',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages\\flask-3.1.3.dist-info\\entry_points.txt',
+   'DATA'),
+  ('itsdangerous-2.2.0.dist-info\\METADATA',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages\\itsdangerous-2.2.0.dist-info\\METADATA',
+   'DATA'),
+  ('markupsafe-3.0.3.dist-info\\RECORD',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages\\markupsafe-3.0.3.dist-info\\RECORD',
+   'DATA'),
+  ('flask-3.1.3.dist-info\\INSTALLER',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages\\flask-3.1.3.dist-info\\INSTALLER',
+   'DATA'),
+  ('werkzeug-3.1.8.dist-info\\INSTALLER',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages\\werkzeug-3.1.8.dist-info\\INSTALLER',
+   'DATA'),
+  ('click-8.4.2.dist-info\\METADATA',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\site-packages\\click-8.4.2.dist-info\\METADATA',
+   'DATA'),
+  ('base_library.zip',
+   'C:\\Users\\Pranjal '
+   'Tripathi\\OneDrive\\Desktop\\finance_manager\\Finance-Manager\\build\\FinanceTracker\\base_library.zip',
+   'DATA')],
+ 'python314.dll',
+ False,
+ False,
+ False,
+ [],
+ None,
+ None,
+ None)
