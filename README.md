@@ -90,7 +90,7 @@ VaultLedger/
 
 ### Option 1: Standalone Launcher (Windows)
 Double-click any of the following files in the project folder:
-- **`Start-FinanceTracker.vbs`**: Silent 1-click launcher 
+- **`Start-FinanceTracker.vbs`**: Silent 1-click Terminal Launcher 
 
 ### Option 2: Run from Source
 
