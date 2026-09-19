@@ -117,6 +117,3 @@ Double-click any of the following files in the project folder:
 
 ---
 
-## 📄 License
-
-Distributed under the MIT License. See `LICENSE` for details.
