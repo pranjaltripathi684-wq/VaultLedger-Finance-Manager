@@ -116,9 +116,9 @@ function App() {
               onEdit={(item) => setComposerModal({ open: true, editingItem: item })} 
             />
           )}
-          {view === 'analytics' && <Analytics refreshKey={refreshKey} />}
-          {view === 'budgets' && <Budgets currency={currency} refreshKey={refreshKey} onRefresh={triggerRefresh} />}
-          {view === 'fx' && <FxPortfolio currency={currency} refreshKey={refreshKey} onRefresh={triggerRefresh} />}
+          {view === 'analytics' && <Analytics currency={currency} setCurrency={setCurrency} refreshKey={refreshKey} />}
+          {view === 'budgets' && <Budgets currency={currency} setCurrency={setCurrency} refreshKey={refreshKey} onRefresh={triggerRefresh} />}
+          {view === 'fx' && <FxPortfolio currency={currency} setCurrency={setCurrency} refreshKey={refreshKey} onRefresh={triggerRefresh} />}
           {view === 'hub' && (
             <Hub 
               currency={currency} 
@@ -504,11 +504,12 @@ function TransactionRow({ item, currency, selected, onToggle, onEdit, refresh })
 // ---------------------------------------------------------------------------
 // 2. ANALYTICS COMPONENT
 // ---------------------------------------------------------------------------
-function Analytics({ refreshKey }) {
-  const { data, loading, error, load } = useApi('/api/analytics', refreshKey)
+function Analytics({ currency, setCurrency, refreshKey }) {
+  const { data, loading, error, load } = useApi(`/api/analytics?currency=${currency}`, refreshKey)
   if (loading) return <Loading />
   if (error) return <ErrorState message={error} onRetry={load} />
-  const highestCategory = data.categories[0]
+  const highestCategory = data.categories && data.categories.length > 0 ? data.categories[0] : null
+  const currencies = data.currencies || []
 
   return (
     <>
@@ -518,88 +519,63 @@ function Analytics({ refreshKey }) {
           <h1>Analytics &amp; Forecasting</h1>
           <p>Income vs. expenses trend models and Monte Carlo simulations.</p>
         </div>
+        <div className="heading-actions">
+          <select value={currency} onChange={(e) => setCurrency(e.target.value)}>
+            {currencies.map((item) => (
+              <option key={item.code} value={item.code}>{item.code} ({item.symbol})</option>
+            ))}
+          </select>
+        </div>
       </section>
 
       <section className="metric-grid three">
         <article className="metric-card primary">
           <p>12 month outlook</p>
-          <strong className="money-value">{formatMoney(data.projection.projected_median)}</strong>
+          <strong className="money-value">{formatMoney(data.projection?.projected_median || 0, currency)}</strong>
           <small>Median projected balance</small>
         </article>
         <article className="metric-card negative">
           <p>Risk of ruin</p>
-          <strong>{data.projection.risk_of_ruin}%</strong>
+          <strong>{data.projection?.risk_of_ruin || 0}%</strong>
           <small>Over the next 12 months</small>
         </article>
         <article className="metric-card neutral">
           <p>Top category</p>
-          <strong>{highestCategory?.category || '—'}</strong>
-          <small>{highestCategory ? formatMoney(highestCategory.total) : 'No expense data'}</small>
+          <strong>{highestCategory ? highestCategory.category : '—'}</strong>
+          <small>{highestCategory ? formatMoney(highestCategory.total, currency) : 'No expense data'}</small>
         </article>
       </section>
 
-      <section className="two-column">
-        <article className="panel">
-          <div className="panel-head">
-            <div>
-              <h2>Cash flow trend</h2>
-              <p>Income and expenses over time.</p>
-            </div>
+      <section className="panel" style={{ marginTop: '18px' }}>
+        <div className="panel-head">
+          <div>
+            <h2>Expense categories</h2>
+            <p>Top spending allocations.</p>
           </div>
-          <TrendChart months={data.months} income={data.income} expenses={data.expenses} />
-        </article>
-        <article className="panel">
-          <div className="panel-head">
-            <div>
-              <h2>Expense categories</h2>
-              <p>Top spending allocations.</p>
-            </div>
-          </div>
+        </div>
+        {data.categories && data.categories.length > 0 ? (
           <div className="ranking">
             {data.categories.slice(0, 8).map((item, index) => (
               <div key={item.category}>
                 <span><b>{index + 1}</b>{item.category}</span>
-                <strong className="money-value">{formatMoney(item.total)}</strong>
+                <strong className="money-value">{formatMoney(item.total, currency)}</strong>
               </div>
             ))}
           </div>
-        </article>
+        ) : (
+          <Empty message="No category spending data yet." />
+        )}
       </section>
     </>
-  )
-}
-
-function TrendChart({ months, income, expenses }) {
-  const values = [...income, ...expenses, 1]
-  const max = Math.max(...values)
-  const points = (series) => series.map((value, index) => `${index * (100 / Math.max(series.length - 1, 1))},${94 - (value / max) * 78}`).join(' ')
-
-  return (
-    <div className="chart">
-      <svg viewBox="0 0 100 100" preserveAspectRatio="none">
-        <line x1="0" y1="94" x2="100" y2="94" />
-        <line x1="0" y1="54" x2="100" y2="54" />
-        <line x1="0" y1="14" x2="100" y2="14" />
-        <polyline points={points(income)} className="income-line" />
-        <polyline points={points(expenses)} className="expense-line" />
-      </svg>
-      <div className="chart-key">
-        <span><i className="income-key" />Income</span>
-        <span><i className="expense-key" />Expenses</span>
-      </div>
-      <div className="chart-labels">
-        {months.map((month) => <span key={month}>{month.slice(5)}</span>)}
-      </div>
-    </div>
   )
 }
 
 // ---------------------------------------------------------------------------
 // 3. BUDGETS COMPONENT
 // ---------------------------------------------------------------------------
-function Budgets({ currency, refreshKey, onRefresh }) {
+function Budgets({ currency, setCurrency, refreshKey, onRefresh }) {
   const { data, loading, error, load } = useApi(`/api/budgets?currency=${currency}`, refreshKey)
-  const [form, setForm] = useState({ category: '', monthly_limit: '' })
+  const [form, setForm] = useState({ category: '', monthly_limit: '', currency: currency })
   const [submitting, setSubmitting] = useState(false)
 
   const save = async (event) => {
@@ -612,7 +588,7 @@ function Budgets({ currency, refreshKey, onRefresh }) {
         body: JSON.stringify(form)
       })
       if (response.ok) {
-        setForm({ category: '', monthly_limit: '' })
+        setForm({ category: '', monthly_limit: '', currency: currency })
         onRefresh()
       }
     } finally {
@@ -629,6 +605,8 @@ function Budgets({ currency, refreshKey, onRefresh }) {
   if (loading) return <Loading />
   if (error) return <ErrorState message={error} onRetry={load} />
 
+  const currencies = data.currencies || []
+
   return (
     <>
       <section className="page-heading">
@@ -636,6 +614,13 @@ function Budgets({ currency, refreshKey, onRefresh }) {
           <p className="eyebrow">Plan ahead</p>
           <h1>Category Budgets</h1>
           <p>Set monthly spending guardrails for your major spending categories.</p>
+        </div>
+        <div className="heading-actions">
+          <select value={currency} onChange={(e) => setCurrency(e.target.value)}>
+            {currencies.map((item) => (
+              <option key={item.code} value={item.code}>{item.code} ({item.symbol})</option>
+            ))}
+          </select>
         </div>
       </section>
 
@@ -647,17 +632,30 @@ function Budgets({ currency, refreshKey, onRefresh }) {
             Category Name
             <input value={form.category} onChange={(event) => setForm({ ...form, category: event.target.value })} placeholder="e.g. Dining" required />
           </label>
-          <label>
-            Monthly limit ({currency})
-            <input type="number" min="0.01" step="0.01" value={form.monthly_limit} onChange={(event) => setForm({ ...form, monthly_limit: event.target.value })} placeholder="0.00" required />
-          </label>
+          <div className="form-grid" style={{ margin: 0 }}>
+            <label>
+              Limit Amount
+              <input type="number" min="0.01" step="0.01" value={form.monthly_limit} onChange={(event) => setForm({ ...form, monthly_limit: event.target.value })} placeholder="0.00" required />
+            </label>
+            <label>
+              Currency Type
+              <select value={form.currency || currency} onChange={(event) => setForm({ ...form, currency: event.target.value })}>
+                <option value="USD">USD ($)</option>
+                <option value="EUR">EUR (€)</option>
+                <option value="GBP">GBP (£)</option>
+                <option value="INR">INR (₹)</option>
+                <option value="CAD">CAD ($)</option>
+                <option value="JPY">JPY (¥)</option>
+              </select>
+            </label>
+          </div>
           <button className="primary-button" type="submit" disabled={submitting}>
             {submitting ? 'Saving...' : 'Save budget limit'}
           </button>
         </form>
 
         <div className="budget-cards">
-          {data.budgets.length ? (
+          {data.budgets && data.budgets.length ? (
             data.budgets.map((budget) => (
               <article className="panel budget-card" key={budget.category}>
                 <div className="panel-head">
@@ -668,7 +666,7 @@ function Budgets({ currency, refreshKey, onRefresh }) {
                   </div>
                 </div>
                 <strong className="money-value">{formatMoney(budget.spent, currency)}</strong>
-                <p>of {formatMoney(budget.limit, currency)} limit</p>
+                <p>of {formatMoney(budget.limit, currency)} limit {budget.currency ? `(Set in ${budget.currency})` : ''}</p>
                 <div className="progress large">
                   <span style={{ width: `${Math.min(budget.percent, 100)}%`, background: budget.color }} />
                 </div>
@@ -687,8 +685,8 @@ function Budgets({ currency, refreshKey, onRefresh }) {
 // ---------------------------------------------------------------------------
 // 4. FX PORTFOLIO COMPONENT
 // ---------------------------------------------------------------------------
-function FxPortfolio({ currency, refreshKey, onRefresh }) {
-  const { data, loading, error, load } = useApi('/api/fx', refreshKey)
+function FxPortfolio({ currency, setCurrency, refreshKey, onRefresh }) {
+  const { data, loading, error, load } = useApi(`/api/fx?currency=${currency}`, refreshKey)
   const [rates, setRates] = useState({})
 
   useEffect(() => {
@@ -699,12 +697,13 @@ function FxPortfolio({ currency, refreshKey, onRefresh }) {
   if (error) return <ErrorState message={error} onRetry={load} />
 
   const { analysis } = data
-  const currenciesList = analysis.currencies || []
+  const currenciesList = analysis?.currencies || []
+  const currencies = data.currencies || []
 
   const handleRateChange = async (curr, val) => {
     const updated = { ...rates, [curr]: parseFloat(val) || 0 }
     setRates(updated)
-    await fetch('/api/fx', {
+    await fetch(`/api/fx?currency=${currency}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ rates: updated })
@@ -720,23 +719,30 @@ function FxPortfolio({ currency, refreshKey, onRefresh }) {
           <h1>FX Portfolio &amp; Gain/Loss</h1>
           <p>Real-time foreign currency positions, historical cost basis, and FX simulation.</p>
         </div>
+        <div className="heading-actions">
+          <select value={currency} onChange={(e) => setCurrency(e.target.value)}>
+            {currencies.map((item) => (
+              <option key={item.code} value={item.code}>{item.code} ({item.symbol})</option>
+            ))}
+          </select>
+        </div>
       </section>
 
       <section className="metric-grid three">
         <article className="metric-card primary">
-          <p>Total FX Portfolio Base Value</p>
-          <strong className="money-value">${(analysis.total_fx_portfolio_value_usd || 0).toFixed(2)} USD</strong>
-          <small>Normalized USD value</small>
+          <p>Total FX Portfolio Value</p>
+          <strong className="money-value">{formatMoney(analysis?.total_fx_portfolio_value_usd || 0, currency)}</strong>
+          <small>Normalized portfolio value ({currency})</small>
         </article>
         <article className="metric-card positive">
           <p>Realized FX Gain / Loss</p>
-          <strong className="money-value">${(analysis.total_realized_gain || 0).toFixed(2)} USD</strong>
-          <small>Closed conversions</small>
+          <strong className="money-value">{formatMoney(analysis?.total_realized_gain || 0, currency)}</strong>
+          <small>Closed conversions ({currency})</small>
         </article>
         <article className="metric-card neutral">
           <p>Unrealized FX Gain / Loss</p>
-          <strong className="money-value">${(analysis.total_unrealized_gain || 0).toFixed(2)} USD</strong>
-          <small>Mark-to-market position</small>
+          <strong className="money-value">{formatMoney(analysis?.total_unrealized_gain || 0, currency)}</strong>
+          <small>Mark-to-market position ({currency})</small>
         </article>
       </section>
 

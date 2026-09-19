@@ -60,6 +60,20 @@ def ensure_columns(conn):
         conn.execute("ALTER TABLE transactions ADD COLUMN account_name TEXT NOT NULL DEFAULT 'Main Checking'")
 
     conn.execute('''
+        CREATE TABLE IF NOT EXISTS budgets (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            category TEXT UNIQUE NOT NULL,
+            monthly_limit REAL NOT NULL CHECK(monthly_limit > 0),
+            currency TEXT NOT NULL DEFAULT 'USD'
+        )
+    ''')
+
+    cursor.execute("PRAGMA table_info(budgets)")
+    b_cols = [col[1] for col in cursor.fetchall()]
+    if 'currency' not in b_cols:
+        conn.execute("ALTER TABLE budgets ADD COLUMN currency TEXT NOT NULL DEFAULT 'USD'")
+
+    conn.execute('''
         CREATE TABLE IF NOT EXISTS dismissed_anomalies (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             transaction_id INTEGER UNIQUE NOT NULL
@@ -508,9 +522,16 @@ def get_budget_progress(conn):
         CREATE TABLE IF NOT EXISTS budgets (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             category TEXT UNIQUE NOT NULL,
-            monthly_limit REAL NOT NULL CHECK(monthly_limit > 0)
+            monthly_limit REAL NOT NULL CHECK(monthly_limit > 0),
+            currency TEXT NOT NULL DEFAULT 'USD'
         )
     ''')
+
+    cursor = conn.cursor()
+    cursor.execute("PRAGMA table_info(budgets)")
+    b_cols = [col[1] for col in cursor.fetchall()]
+    if 'currency' not in b_cols:
+        conn.execute("ALTER TABLE budgets ADD COLUMN currency TEXT NOT NULL DEFAULT 'USD'")
 
     budgets = conn.execute('SELECT * FROM budgets ORDER BY category ASC').fetchall()
     progress_list = []
@@ -518,6 +539,9 @@ def get_budget_progress(conn):
     for b in budgets:
         cat = b['category']
         limit = b['monthly_limit']
+        b_curr = b['currency'] if 'currency' in b.keys() and b['currency'] else 'USD'
+        b_rate = DEFAULT_MARKET_RATES.get(b_curr, 1.0)
+        limit_usd = limit * b_rate
 
         spent_row = conn.execute('''
             SELECT SUM(amount * exchange_rate) as total
@@ -527,9 +551,9 @@ def get_budget_progress(conn):
               AND strftime('%Y-%m', date) = ?
         ''', (cat, cur_month)).fetchone()
 
-        spent = spent_row['total'] if spent_row and spent_row['total'] else 0.0
-        percent = round((spent / limit) * 100, 1)
-        remaining = round(limit - spent, 2)
+        spent_usd = spent_row['total'] if spent_row and spent_row['total'] else 0.0
+        percent = round((spent_usd / limit_usd) * 100, 1) if limit_usd > 0 else 0.0
+        remaining_usd = round(limit_usd - spent_usd, 2)
 
         if percent >= 100:
             color = '#dc2626'
@@ -544,11 +568,13 @@ def get_budget_progress(conn):
         progress_list.append({
             'id': b['id'],
             'category': cat,
-            'limit': limit,
-            'spent': spent,
+            'limit': limit_usd,
+            'spent': spent_usd,
+            'currency': b_curr,
+            'original_limit': limit,
             'percent': min(100, percent),
             'real_percent': percent,
-            'remaining': remaining,
+            'remaining': remaining_usd,
             'color': color,
             'status': status
         })
@@ -880,6 +906,7 @@ def api_budgets():
     if request.method == 'POST':
         data = request.get_json(silent=True) or {}
         category = str(data.get('category', '')).strip()
+        currency_code = get_selected_currency(data.get('currency'))
         try:
             limit = float(data.get('monthly_limit', 0))
             if not category or limit <= 0:
@@ -887,14 +914,24 @@ def api_budgets():
         except (TypeError, ValueError):
             conn.close()
             return jsonify({'error': 'Provide a category and a positive monthly limit.'}), 400
-        conn.execute('''INSERT INTO budgets (category, monthly_limit) VALUES (?, ?)
-                        ON CONFLICT(category) DO UPDATE SET monthly_limit = excluded.monthly_limit''', (category, limit))
+        conn.execute('''INSERT INTO budgets (category, monthly_limit, currency) VALUES (?, ?, ?)
+                        ON CONFLICT(category) DO UPDATE SET monthly_limit = excluded.monthly_limit, currency = excluded.currency''', (category, limit, currency_code))
         conn.commit()
     currency = get_selected_currency(request.args.get('currency'))
     factor = 1.0 / DEFAULT_MARKET_RATES[currency]
-    budgets = [{**budget, 'limit': round(budget['limit'] * factor, 2), 'spent': round(budget['spent'] * factor, 2)} for budget in get_budget_progress(conn)]
+    budgets = [{
+        **budget,
+        'limit': round(budget['limit'] * factor, 2),
+        'spent': round(budget['spent'] * factor, 2),
+        'remaining': round(budget['remaining'] * factor, 2)
+    } for budget in get_budget_progress(conn)]
     conn.close()
-    return jsonify({'currency': currency, 'symbol': CURRENCY_SYMBOLS[currency], 'budgets': budgets})
+    return jsonify({
+        'currency': currency,
+        'symbol': CURRENCY_SYMBOLS[currency],
+        'currencies': [{'code': code, 'symbol': symbol} for code, symbol in CURRENCY_SYMBOLS.items()],
+        'budgets': budgets
+    })
 
 
 @app.route('/api/budgets/<int:budget_id>', methods=['DELETE'])
@@ -908,6 +945,8 @@ def api_delete_budget(budget_id):
 
 @app.route('/api/analytics')
 def api_analytics():
+    currency = get_selected_currency(request.args.get('currency'))
+    factor = 1.0 / DEFAULT_MARKET_RATES[currency]
     conn = get_db_connection()
     rows = conn.execute('''SELECT strftime('%Y-%m', date) AS month, type, SUM(amount * exchange_rate) AS total
                            FROM transactions GROUP BY month, type ORDER BY month''').fetchall()
@@ -915,17 +954,37 @@ def api_analytics():
                                     WHERE type = 'expense' GROUP BY category ORDER BY total DESC''').fetchall()
     monthly = {}
     for row in rows:
-        monthly.setdefault(row['month'], {'income': 0, 'expense': 0})[row['type']] = round(row['total'], 2)
+        monthly.setdefault(row['month'], {'income': 0.0, 'expense': 0.0})[row['type']] = round(row['total'] * factor, 2)
     months = sorted(monthly)
     incomes = [monthly[month]['income'] for month in months]
     expenses = [monthly[month]['expense'] for month in months]
     conn.close()
+
+    has_data = len(months) > 0 and (sum(incomes) > 0 or sum(expenses) > 0)
+
+    if not has_data:
+        projection = {
+            'sim_labels': [],
+            'p5_curve': [],
+            'p50_curve': [],
+            'p95_curve': [],
+            'risk_of_ruin': 0.0,
+            'projected_median': 0.0,
+            'projected_optimistic': 0.0,
+            'projected_pessimistic': 0.0
+        }
+    else:
+        projection = run_monte_carlo_simulation(sum(incomes) - sum(expenses), incomes, expenses)
+
     return jsonify({
+        'currency': currency,
+        'symbol': CURRENCY_SYMBOLS[currency],
+        'currencies': [{'code': code, 'symbol': symbol} for code, symbol in CURRENCY_SYMBOLS.items()],
         'months': months,
         'income': incomes,
         'expenses': expenses,
-        'categories': [row_to_dict(row) for row in category_rows],
-        'projection': run_monte_carlo_simulation(sum(incomes) - sum(expenses), incomes, expenses),
+        'categories': [{'category': r['category'], 'total': round(r['total'] * factor, 2)} for r in category_rows],
+        'projection': projection,
     })
 
 
@@ -1058,21 +1117,40 @@ def api_verify_audit():
 
 @app.route('/api/fx', methods=['GET', 'POST'])
 def api_fx_portfolio():
+    currency = get_selected_currency(request.args.get('currency'))
+    factor = 1.0 / DEFAULT_MARKET_RATES[currency]
     data = request.get_json(silent=True) or {}
     rates = DEFAULT_MARKET_RATES.copy()
-    for currency, value in (data.get('rates') or {}).items():
-        if currency in rates and currency != 'USD':
+    for curr_code, value in (data.get('rates') or {}).items():
+        if curr_code in rates and curr_code != 'USD':
             try:
                 parsed = float(value)
                 if parsed > 0:
-                    rates[currency] = parsed
+                    rates[curr_code] = parsed
             except (TypeError, ValueError):
                 pass
     conn = get_db_connection()
     ensure_columns(conn)
     transactions = conn.execute('SELECT * FROM transactions ORDER BY id ASC').fetchall()
     conn.close()
-    return jsonify({'rates': rates, 'analysis': calculate_fx_holdings_and_gains(transactions, rates)})
+
+    raw_analysis = calculate_fx_holdings_and_gains(transactions, rates)
+
+    converted_analysis = {
+        'currencies': raw_analysis['currencies'],
+        'total_unrealized_gain': round(raw_analysis['total_unrealized_gain'] * factor, 2),
+        'total_realized_gain': round(raw_analysis['total_realized_gain'] * factor, 2),
+        'total_net_fx_pnl': round(raw_analysis['total_net_fx_pnl'] * factor, 2),
+        'total_fx_portfolio_value_usd': round(raw_analysis['total_fx_portfolio_value_usd'] * factor, 2),
+    }
+
+    return jsonify({
+        'currency': currency,
+        'symbol': CURRENCY_SYMBOLS[currency],
+        'currencies': [{'code': code, 'symbol': symbol} for code, symbol in CURRENCY_SYMBOLS.items()],
+        'rates': rates,
+        'analysis': converted_analysis
+    })
 
 
 # ============================================================================
