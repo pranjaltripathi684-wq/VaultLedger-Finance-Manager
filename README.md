@@ -88,11 +88,9 @@ VaultLedger/
 
 ## 🚀 Quick Start
 
-### Option 1: Standalone Executable & Launchers (Windows)
+### Option 1: Standalone Launcher (Windows)
 Double-click any of the following files in the project folder:
-- **`VaultLedger.exe`**: Standalone single-file executable (no Python setup required).
-- **`Start-FinanceTracker.vbs`**: Silent 1-click launcher.
-- **`Start-FinanceTracker.bat`**: Terminal launcher.
+- **`Start-FinanceTracker.vbs`**: Silent 1-click launcher 
 
 ### Option 2: Run from Source
 
