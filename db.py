@@ -17,23 +17,30 @@
 #    - Call init_db() and print a success message so you can run `python db.py` to create the DB!
 import os
 import sqlite3
-DATABASE = 'finance.db'
+
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATABASE = os.path.join(BASE_DIR, 'finance.db')
 SCHEMA_FILE = os.path.join(BASE_DIR, 'schema.sql')
+
 
 def get_db_connection():
     conn = sqlite3.connect(DATABASE)
     conn.row_factory = sqlite3.Row
     return conn
 
+
 def init_db():
-    with open('schema.sql', 'r') as f:
+    with open(SCHEMA_FILE, 'r', encoding='utf-8') as f:
         schema = f.read()
-        conn = get_db_connection()
+
+    conn = get_db_connection()
+
+    try:
         conn.executescript(schema)
         conn.commit()
+    finally:
         conn.close()
+
 
 if __name__ == '__main__':
     init_db()
