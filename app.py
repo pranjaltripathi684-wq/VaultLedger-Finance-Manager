@@ -320,7 +320,8 @@ def detect_anomalies(conn, transactions):
                     diff_days = abs((d2 - d1).days)
 
                     if diff_days <= 2:
-                        msg = f'Possible Duplicate: "{t1["title"]}" ({t1.get("currency", "USD")} {t1["amount"]:.2f}) on {t1["date"]} and {t2["date"]}'
+                        c_code = t1['currency'] if 'currency' in t1.keys() and t1['currency'] else 'USD'
+                        msg = f'Possible Duplicate: "{t1["title"]}" ({c_code} {t1["amount"]:.2f}) on {t1["date"]} and {t2["date"]}'
                         anomalies.append({
                             'type': 'duplicate',
                             'level': 'warning',
