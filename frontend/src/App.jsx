@@ -74,7 +74,7 @@ function App() {
   return (
     <div className={privateMode ? 'app private' : 'app'}>
       <aside className="sidebar">
-        <div className="brand"><span className="brand-mark">F</span><span>Finance Tracker</span></div>
+        <div className="brand"><span className="brand-mark">🛡️</span><span className="brand-title">VaultLedger</span></div>
         <p className="eyebrow">Workspace</p>
         <nav>
           {NAV.map(([id, label, icon]) => (

@@ -1,11 +1,11 @@
 @echo off
-title Finance Tracker Launcher
+title VaultLedger Launcher
 color 0A
 echo ===================================================
-echo             💰 Finance Tracker Launcher
+echo             🛡️ VaultLedger Launcher
 echo ===================================================
 echo.
-echo Launching Finance Tracker application...
+echo Launching VaultLedger application...
 
 cd /d "%~dp0"
 
@@ -19,7 +19,7 @@ if %errorlevel% neq 0 (
 )
 
 :: Start Flask app
-start "Finance Tracker Server" /min python app.py
+start "VaultLedger Server" /min python app.py
 
 :: Wait for server boot
 timeout /t 2 /nobreak >nul
@@ -28,12 +28,12 @@ timeout /t 2 /nobreak >nul
 start http://127.0.0.1:5000/
 
 echo.
-echo [SUCCESS] App running live at http://127.0.0.1:5000/
+echo [SUCCESS] VaultLedger running live at http://127.0.0.1:5000/
 echo.
 echo Keep this window open while using the app.
 echo Press any key to stop the server and exit.
 pause >nul
 
-echo Stopping Finance Tracker server...
-taskkill /f /fi "WINDOWTITLE eq Finance Tracker Server*" >nul 2>&1
+echo Stopping VaultLedger server...
+taskkill /f /fi "WINDOWTITLE eq VaultLedger Server*" >nul 2>&1
 echo Done.

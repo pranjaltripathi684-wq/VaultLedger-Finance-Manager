@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Finance Tracker{% endblock %}</title>
+    <title>{% block title %}VaultLedger{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
@@ -22,7 +22,7 @@
         <aside class="sidebar">
             <div class="sidebar-brand-box">
                 <div class="brand-header-row">
-                    <a href="{{ url_for('index') }}" class="logo">💰 Finance Tracker</a>
+                    <a href="{{ url_for('index') }}" class="logo">🛡️ VaultLedger</a>
                     
                     <div class="toggle-btn-group">
                         <button id="themeToggle" class="btn-control" onclick="toggleTheme()" title="Toggle Dark/Light Mode">
