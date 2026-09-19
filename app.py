@@ -756,11 +756,18 @@ def api_add_transaction():
         if amount <= 0 or data['type'] not in ('income', 'expense'):
             raise ValueError
         currency = get_selected_currency(data.get('currency'))
-        rate = float(data.get('exchange_rate') or DEFAULT_MARKET_RATES[currency])
-        if rate <= 0:
-            raise ValueError
+        raw_rate = data.get('exchange_rate')
+        if raw_rate is not None and str(raw_rate).strip() != '':
+            try:
+                rate = float(raw_rate)
+                if rate <= 0:
+                    rate = DEFAULT_MARKET_RATES.get(currency, 1.0)
+            except (TypeError, ValueError):
+                rate = DEFAULT_MARKET_RATES.get(currency, 1.0)
+        else:
+            rate = DEFAULT_MARKET_RATES.get(currency, 1.0)
     except (TypeError, ValueError):
-        return jsonify({'error': 'Enter a valid positive amount and exchange rate.'}), 400
+        return jsonify({'error': 'Enter a valid positive transaction amount.'}), 400
 
     conn = get_db_connection()
     ensure_columns(conn)
@@ -795,12 +802,21 @@ def api_transaction(transaction_id):
         try:
             amount = float(data['amount'])
             currency = get_selected_currency(data.get('currency'))
-            rate = float(data.get('exchange_rate') or DEFAULT_MARKET_RATES[currency])
-            if amount <= 0 or rate <= 0 or data['type'] not in ('income', 'expense'):
+            raw_rate = data.get('exchange_rate')
+            if raw_rate is not None and str(raw_rate).strip() != '':
+                try:
+                    rate = float(raw_rate)
+                    if rate <= 0:
+                        rate = DEFAULT_MARKET_RATES.get(currency, 1.0)
+                except (TypeError, ValueError):
+                    rate = DEFAULT_MARKET_RATES.get(currency, 1.0)
+            else:
+                rate = DEFAULT_MARKET_RATES.get(currency, 1.0)
+            if amount <= 0 or data['type'] not in ('income', 'expense'):
                 raise ValueError
         except (TypeError, ValueError):
             conn.close()
-            return jsonify({'error': 'Enter a valid positive amount and exchange rate.'}), 400
+            return jsonify({'error': 'Enter a valid positive transaction amount.'}), 400
         conn.execute('''UPDATE transactions SET title=?, amount=?, type=?, category=?, date=?, notes=?, currency=?, exchange_rate=?, account_name=? WHERE id=?''', (
             str(data['title']).strip(), amount, data['type'], str(data['category']).strip(), data['date'],
             str(data.get('notes', '')).strip(), currency, rate, str(data.get('account_name') or 'Main Checking').strip(), transaction_id

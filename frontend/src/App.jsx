@@ -10,7 +10,7 @@ const NAV = [
 
 const today = new Date().toISOString().slice(0, 10)
 
-function useApi(path) {
+function useApi(path, refreshKey = 0) {
   const [state, setState] = useState({ loading: true, data: null, error: null })
   const load = async () => {
     setState((current) => ({ ...current, loading: true, error: null }))
@@ -22,7 +22,7 @@ function useApi(path) {
       setState({ loading: false, data: null, error: error.message })
     }
   }
-  useEffect(() => { load() }, [path])
+  useEffect(() => { load() }, [path, refreshKey])
   return { ...state, load }
 }
 
@@ -39,6 +39,9 @@ function App() {
   const [currency, setCurrency] = useState('USD')
   const [dark, setDark] = useState(() => localStorage.getItem('ledger-theme') === 'dark')
   const [privateMode, setPrivateMode] = useState(false)
+  const [refreshKey, setRefreshKey] = useState(0)
+
+  const triggerRefresh = () => setRefreshKey(k => k + 1)
   
   // Modals state
   const [composerModal, setComposerModal] = useState({ open: false, editingItem: null })
@@ -107,16 +110,20 @@ function App() {
             <Dashboard 
               currency={currency} 
               setCurrency={setCurrency} 
+              refreshKey={refreshKey}
+              onRefresh={triggerRefresh}
               onAdd={() => setComposerModal({ open: true, editingItem: null })} 
               onEdit={(item) => setComposerModal({ open: true, editingItem: item })} 
             />
           )}
-          {view === 'analytics' && <Analytics />}
-          {view === 'budgets' && <Budgets currency={currency} />}
-          {view === 'fx' && <FxPortfolio currency={currency} />}
+          {view === 'analytics' && <Analytics refreshKey={refreshKey} />}
+          {view === 'budgets' && <Budgets currency={currency} refreshKey={refreshKey} onRefresh={triggerRefresh} />}
+          {view === 'fx' && <FxPortfolio currency={currency} refreshKey={refreshKey} onRefresh={triggerRefresh} />}
           {view === 'hub' && (
             <Hub 
               currency={currency} 
+              refreshKey={refreshKey}
+              onRefresh={triggerRefresh}
               onAddAccount={() => setAccountModalOpen(true)}
               onAddSub={() => setSubModalOpen(true)}
               onAddGoal={() => setGoalModalOpen(true)}
@@ -130,13 +137,13 @@ function App() {
           currency={currency} 
           editingItem={composerModal.editingItem}
           onClose={() => setComposerModal({ open: false, editingItem: null })} 
-          onSaved={() => { setComposerModal({ open: false, editingItem: null }); setView('dashboard') }} 
+          onSaved={() => { setComposerModal({ open: false, editingItem: null }); triggerRefresh(); setView('dashboard') }} 
         />
       )}
 
-      {accountModalOpen && <AccountModal currency={currency} onClose={() => setAccountModalOpen(false)} onSaved={() => { setAccountModalOpen(false); setView('hub') }} />}
-      {subModalOpen && <SubscriptionModal currency={currency} onClose={() => setSubModalOpen(false)} onSaved={() => { setSubModalOpen(false); setView('hub') }} />}
-      {goalModalOpen && <SavingsGoalModal currency={currency} onClose={() => setGoalModalOpen(false)} onSaved={() => { setGoalModalOpen(false); setView('hub') }} />}
+      {accountModalOpen && <AccountModal currency={currency} onClose={() => setAccountModalOpen(false)} onSaved={() => { setAccountModalOpen(false); triggerRefresh(); setView('hub') }} />}
+      {subModalOpen && <SubscriptionModal currency={currency} onClose={() => setSubModalOpen(false)} onSaved={() => { setSubModalOpen(false); triggerRefresh(); setView('hub') }} />}
+      {goalModalOpen && <SavingsGoalModal currency={currency} onClose={() => setGoalModalOpen(false)} onSaved={() => { setGoalModalOpen(false); triggerRefresh(); setView('hub') }} />}
     </div>
   )
 }
@@ -144,8 +151,8 @@ function App() {
 // ---------------------------------------------------------------------------
 // 1. DASHBOARD COMPONENT
 // ---------------------------------------------------------------------------
-function Dashboard({ currency, setCurrency, onAdd, onEdit }) {
-  const { data, loading, error, load } = useApi(`/api/dashboard?currency=${currency}`)
+function Dashboard({ currency, setCurrency, refreshKey, onRefresh, onAdd, onEdit }) {
+  const { data, loading, error, load } = useApi(`/api/dashboard?currency=${currency}`, refreshKey)
   const [query, setQuery] = useState('')
   const [categoryFilter, setCategoryFilter] = useState('all')
   const [selectedIds, setSelectedIds] = useState([])
@@ -173,7 +180,7 @@ function Dashboard({ currency, setCurrency, onAdd, onEdit }) {
 
   const handleDismissAnomaly = async (txId) => {
     await fetch(`/api/anomalies/${txId}/dismiss`, { method: 'POST' })
-    load()
+    onRefresh()
   }
 
   // Row Filter Logic
@@ -207,7 +214,7 @@ function Dashboard({ currency, setCurrency, onAdd, onEdit }) {
       body: JSON.stringify({ action: 'delete', ids: selectedIds })
     })
     setSelectedIds([])
-    load()
+    onRefresh()
   }
 
   const handleBulkRecategorize = async () => {
@@ -219,7 +226,7 @@ function Dashboard({ currency, setCurrency, onAdd, onEdit }) {
     })
     setSelectedIds([])
     setBulkCategory('')
-    load()
+    onRefresh()
   }
 
   const activeLedgerValid = auditStatus ? auditStatus.valid : ledger.valid
@@ -240,7 +247,7 @@ function Dashboard({ currency, setCurrency, onAdd, onEdit }) {
         <div>
           <p className="eyebrow">Your money at a glance</p>
           <h1>Overview</h1>
-          <p>Multi-currency live balance & cryptographic verification workspace.</p>
+          <p>Multi-currency live balance &amp; cryptographic verification workspace.</p>
         </div>
         <div className="heading-actions">
           <select value={currency} onChange={(event) => setCurrency(event.target.value)}>
@@ -277,7 +284,7 @@ function Dashboard({ currency, setCurrency, onAdd, onEdit }) {
                 <small>Review potential duplicates or unusual transaction spikes.</small>
               </div>
             </div>
-            <button className="text-button" onClick={load}>🔄 Re-check</button>
+            <button className="text-button" onClick={onRefresh}>🔄 Re-check</button>
           </div>
           <div style={{ display: 'grid', gap: '6px' }}>
             {anomalies.map((a, idx) => (
@@ -339,7 +346,7 @@ function Dashboard({ currency, setCurrency, onAdd, onEdit }) {
           <div className="panel-head">
             <div>
               <h2>Spending pace</h2>
-              <p>Burn rate & runway estimation.</p>
+              <p>Burn rate &amp; runway estimation.</p>
             </div>
           </div>
           <div className="runway-stat">
@@ -444,7 +451,7 @@ function Dashboard({ currency, setCurrency, onAdd, onEdit }) {
                     selected={selectedIds.includes(item.id)}
                     onToggle={() => toggleSelectRow(item.id)}
                     onEdit={() => onEdit(item)}
-                    refresh={load} 
+                    refresh={onRefresh} 
                   />
                 ))
               ) : (
@@ -497,8 +504,8 @@ function TransactionRow({ item, currency, selected, onToggle, onEdit, refresh })
 // ---------------------------------------------------------------------------
 // 2. ANALYTICS COMPONENT
 // ---------------------------------------------------------------------------
-function Analytics() {
-  const { data, loading, error, load } = useApi('/api/analytics')
+function Analytics({ refreshKey }) {
+  const { data, loading, error, load } = useApi('/api/analytics', refreshKey)
   if (loading) return <Loading />
   if (error) return <ErrorState message={error} onRetry={load} />
   const highestCategory = data.categories[0]
@@ -590,27 +597,33 @@ function TrendChart({ months, income, expenses }) {
 // ---------------------------------------------------------------------------
 // 3. BUDGETS COMPONENT
 // ---------------------------------------------------------------------------
-function Budgets({ currency }) {
-  const { data, loading, error, load } = useApi(`/api/budgets?currency=${currency}`)
+function Budgets({ currency, refreshKey, onRefresh }) {
+  const { data, loading, error, load } = useApi(`/api/budgets?currency=${currency}`, refreshKey)
   const [form, setForm] = useState({ category: '', monthly_limit: '' })
+  const [submitting, setSubmitting] = useState(false)
 
   const save = async (event) => {
     event.preventDefault()
-    const response = await fetch(`/api/budgets?currency=${currency}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form)
-    })
-    if (response.ok) {
-      setForm({ category: '', monthly_limit: '' })
-      load()
+    setSubmitting(true)
+    try {
+      const response = await fetch(`/api/budgets?currency=${currency}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form)
+      })
+      if (response.ok) {
+        setForm({ category: '', monthly_limit: '' })
+        onRefresh()
+      }
+    } finally {
+      setSubmitting(false)
     }
   }
 
   const deleteBudget = async (id) => {
     if (!window.confirm('Delete this budget limit?')) return
     await fetch(`/api/budgets/${id}`, { method: 'DELETE' })
-    load()
+    onRefresh()
   }
 
   if (loading) return <Loading />
@@ -638,7 +651,9 @@ function Budgets({ currency }) {
             Monthly limit ({currency})
             <input type="number" min="0.01" step="0.01" value={form.monthly_limit} onChange={(event) => setForm({ ...form, monthly_limit: event.target.value })} placeholder="0.00" required />
           </label>
-          <button className="primary-button" type="submit">Save budget limit</button>
+          <button className="primary-button" type="submit" disabled={submitting}>
+            {submitting ? 'Saving...' : 'Save budget limit'}
+          </button>
         </form>
 
         <div className="budget-cards">
@@ -672,8 +687,8 @@ function Budgets({ currency }) {
 // ---------------------------------------------------------------------------
 // 4. FX PORTFOLIO COMPONENT
 // ---------------------------------------------------------------------------
-function FxPortfolio({ currency }) {
-  const { data, loading, error, load } = useApi('/api/fx')
+function FxPortfolio({ currency, refreshKey, onRefresh }) {
+  const { data, loading, error, load } = useApi('/api/fx', refreshKey)
   const [rates, setRates] = useState({})
 
   useEffect(() => {
@@ -694,7 +709,7 @@ function FxPortfolio({ currency }) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ rates: updated })
     })
-    load()
+    onRefresh()
   }
 
   return (
@@ -796,8 +811,8 @@ function FxPortfolio({ currency }) {
 // ---------------------------------------------------------------------------
 // 5. FINANCIAL HUB COMPONENT
 // ---------------------------------------------------------------------------
-function Hub({ currency, onAddAccount, onAddSub, onAddGoal }) {
-  const { data, loading, error, load } = useApi(`/api/hub?currency=${currency}`)
+function Hub({ currency, refreshKey, onRefresh, onAddAccount, onAddSub, onAddGoal }) {
+  const { data, loading, error, load } = useApi(`/api/hub?currency=${currency}`, refreshKey)
   const [depositModalGoal, setDepositModalGoal] = useState(null)
 
   if (loading) return <Loading />
@@ -923,7 +938,7 @@ function Hub({ currency, onAddAccount, onAddSub, onAddGoal }) {
           goal={depositModalGoal} 
           currency={currency} 
           onClose={() => setDepositModalGoal(null)} 
-          onSaved={() => { setDepositModalGoal(null); load() }} 
+          onSaved={() => { setDepositModalGoal(null); onRefresh() }} 
         />
       )}
     </>
@@ -945,27 +960,36 @@ function TransactionDialog({ currency, editingItem, onClose, onSaved }) {
     exchange_rate: editingItem?.exchange_rate || ''
   })
   const [error, setError] = useState('')
+  const [submitting, setSubmitting] = useState(false)
 
   const submit = async (event) => {
     event.preventDefault()
-    const url = editingItem ? `/api/transactions/${editingItem.id}` : '/api/transactions'
-    const method = editingItem ? 'PUT' : 'POST'
-    const response = await fetch(url, {
-      method,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form)
-    })
-    if (!response.ok) {
-      const body = await response.json()
-      setError(body.error || 'Could not save the transaction.')
-      return
+    setError('')
+    setSubmitting(true)
+    try {
+      const url = editingItem ? `/api/transactions/${editingItem.id}` : '/api/transactions'
+      const method = editingItem ? 'PUT' : 'POST'
+      const response = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form)
+      })
+      if (!response.ok) {
+        const body = await response.json()
+        setError(body.error || 'Could not save the transaction.')
+        setSubmitting(false)
+        return
+      }
+      onSaved()
+    } catch (err) {
+      setError('Network error saving transaction.')
+      setSubmitting(false)
     }
-    onSaved()
   }
 
   return (
-    <div className="dialog-backdrop" onMouseDown={onClose}>
-      <form className="dialog" onSubmit={submit} onMouseDown={(e) => e.stopPropagation()}>
+    <div className="dialog-backdrop" onClick={(e) => { if (e.target === e.currentTarget) onClose() }}>
+      <form className="dialog" onSubmit={submit}>
         <div className="dialog-title">
           <div>
             <p className="eyebrow">{editingItem ? 'Edit Entry' : 'New Entry'}</p>
@@ -1029,8 +1053,10 @@ function TransactionDialog({ currency, editingItem, onClose, onSaved }) {
         </label>
 
         <div className="dialog-actions">
-          <button type="button" className="secondary-button" onClick={onClose}>Cancel</button>
-          <button type="submit" className="primary-button">{editingItem ? 'Update' : 'Save'} transaction</button>
+          <button type="button" className="secondary-button" onClick={onClose} disabled={submitting}>Cancel</button>
+          <button type="submit" className="primary-button" disabled={submitting}>
+            {submitting ? 'Saving...' : (editingItem ? 'Update transaction' : 'Save transaction')}
+          </button>
         </div>
       </form>
     </div>
@@ -1039,18 +1065,36 @@ function TransactionDialog({ currency, editingItem, onClose, onSaved }) {
 
 function AccountModal({ currency, onClose, onSaved }) {
   const [form, setForm] = useState({ name: '', account_type: 'checking', initial_balance: '', currency, color: '#2563eb' })
+  const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState('')
+
   const submit = async (e) => {
     e.preventDefault()
-    const res = await fetch('/api/accounts', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form) })
-    if (res.ok) onSaved()
+    setError('')
+    setSubmitting(true)
+    try {
+      const res = await fetch('/api/accounts', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form) })
+      if (res.ok) {
+        onSaved()
+      } else {
+        const b = await res.json()
+        setError(b.error || 'Could not save account.')
+        setSubmitting(false)
+      }
+    } catch (err) {
+      setError('Network error.')
+      setSubmitting(false)
+    }
   }
+
   return (
-    <div className="dialog-backdrop" onMouseDown={onClose}>
-      <form className="dialog" onSubmit={submit} onMouseDown={(e) => e.stopPropagation()}>
+    <div className="dialog-backdrop" onClick={(e) => { if (e.target === e.currentTarget) onClose() }}>
+      <form className="dialog" onSubmit={submit}>
         <div className="dialog-title">
           <div><p className="eyebrow">Wallet</p><h2>Add Account</h2></div>
           <button className="icon-button" type="button" onClick={onClose}>×</button>
         </div>
+        {error && <p className="form-error">{error}</p>}
         <label>Account Name<input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="e.g. Chase Checking" required /></label>
         <div className="form-grid">
           <label>Type
@@ -1064,8 +1108,8 @@ function AccountModal({ currency, onClose, onSaved }) {
           <label>Initial Balance<input type="number" step="0.01" value={form.initial_balance} onChange={(e) => setForm({ ...form, initial_balance: e.target.value })} placeholder="0.00" required /></label>
         </div>
         <div className="dialog-actions">
-          <button type="button" className="secondary-button" onClick={onClose}>Cancel</button>
-          <button type="submit" className="primary-button">Create Account</button>
+          <button type="button" className="secondary-button" onClick={onClose} disabled={submitting}>Cancel</button>
+          <button type="submit" className="primary-button" disabled={submitting}>{submitting ? 'Creating...' : 'Create Account'}</button>
         </div>
       </form>
     </div>
@@ -1074,26 +1118,44 @@ function AccountModal({ currency, onClose, onSaved }) {
 
 function SubscriptionModal({ currency, onClose, onSaved }) {
   const [form, setForm] = useState({ name: '', amount: '', currency, billing_cycle: 'monthly', next_due_date: today, category: 'Software & Subscriptions' })
+  const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState('')
+
   const submit = async (e) => {
     e.preventDefault()
-    const res = await fetch('/api/subscriptions', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form) })
-    if (res.ok) onSaved()
+    setError('')
+    setSubmitting(true)
+    try {
+      const res = await fetch('/api/subscriptions', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form) })
+      if (res.ok) {
+        onSaved()
+      } else {
+        const b = await res.json()
+        setError(b.error || 'Could not add subscription.')
+        setSubmitting(false)
+      }
+    } catch (err) {
+      setError('Network error.')
+      setSubmitting(false)
+    }
   }
+
   return (
-    <div className="dialog-backdrop" onMouseDown={onClose}>
-      <form className="dialog" onSubmit={submit} onMouseDown={(e) => e.stopPropagation()}>
+    <div className="dialog-backdrop" onClick={(e) => { if (e.target === e.currentTarget) onClose() }}>
+      <form className="dialog" onSubmit={submit}>
         <div className="dialog-title">
           <div><p className="eyebrow">Sentinel</p><h2>Add Subscription</h2></div>
           <button className="icon-button" type="button" onClick={onClose}>×</button>
         </div>
+        {error && <p className="form-error">{error}</p>}
         <label>Subscription Name<input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="e.g. Netflix, AWS" required /></label>
         <div className="form-grid">
           <label>Amount<input type="number" step="0.01" value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} placeholder="0.00" required /></label>
           <label>Next Due Date<input type="date" value={form.next_due_date} onChange={(e) => setForm({ ...form, next_due_date: e.target.value })} required /></label>
         </div>
         <div className="dialog-actions">
-          <button type="button" className="secondary-button" onClick={onClose}>Cancel</button>
-          <button type="submit" className="primary-button">Add Subscription</button>
+          <button type="button" className="secondary-button" onClick={onClose} disabled={submitting}>Cancel</button>
+          <button type="submit" className="primary-button" disabled={submitting}>{submitting ? 'Adding...' : 'Add Subscription'}</button>
         </div>
       </form>
     </div>
@@ -1102,26 +1164,44 @@ function SubscriptionModal({ currency, onClose, onSaved }) {
 
 function SavingsGoalModal({ currency, onClose, onSaved }) {
   const [form, setForm] = useState({ title: '', target_amount: '', current_amount: '0', currency, icon: '🎯' })
+  const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState('')
+
   const submit = async (e) => {
     e.preventDefault()
-    const res = await fetch('/api/goals', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form) })
-    if (res.ok) onSaved()
+    setError('')
+    setSubmitting(true)
+    try {
+      const res = await fetch('/api/goals', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form) })
+      if (res.ok) {
+        onSaved()
+      } else {
+        const b = await res.json()
+        setError(b.error || 'Could not create goal jar.')
+        setSubmitting(false)
+      }
+    } catch (err) {
+      setError('Network error.')
+      setSubmitting(false)
+    }
   }
+
   return (
-    <div className="dialog-backdrop" onMouseDown={onClose}>
-      <form className="dialog" onSubmit={submit} onMouseDown={(e) => e.stopPropagation()}>
+    <div className="dialog-backdrop" onClick={(e) => { if (e.target === e.currentTarget) onClose() }}>
+      <form className="dialog" onSubmit={submit}>
         <div className="dialog-title">
           <div><p className="eyebrow">Bucket Jar</p><h2>Add Savings Goal</h2></div>
           <button className="icon-button" type="button" onClick={onClose}>×</button>
         </div>
+        {error && <p className="form-error">{error}</p>}
         <label>Goal Title<input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="e.g. Emergency Fund" required /></label>
         <div className="form-grid">
           <label>Target Amount<input type="number" step="0.01" value={form.target_amount} onChange={(e) => setForm({ ...form, target_amount: e.target.value })} placeholder="10000" required /></label>
           <label>Initial Saved<input type="number" step="0.01" value={form.current_amount} onChange={(e) => setForm({ ...form, current_amount: e.target.value })} placeholder="0" /></label>
         </div>
         <div className="dialog-actions">
-          <button type="button" className="secondary-button" onClick={onClose}>Cancel</button>
-          <button type="submit" className="primary-button">Create Savings Jar</button>
+          <button type="button" className="secondary-button" onClick={onClose} disabled={submitting}>Cancel</button>
+          <button type="submit" className="primary-button" disabled={submitting}>{submitting ? 'Creating...' : 'Create Savings Jar'}</button>
         </div>
       </form>
     </div>
@@ -1130,26 +1210,44 @@ function SavingsGoalModal({ currency, onClose, onSaved }) {
 
 function DepositModal({ goal, currency, onClose, onSaved }) {
   const [amount, setAmount] = useState('')
+  const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState('')
+
   const submit = async (e) => {
     e.preventDefault()
-    const res = await fetch(`/api/goals/${goal.id}/deposit`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ amount: parseFloat(amount) })
-    })
-    if (res.ok) onSaved()
+    setError('')
+    setSubmitting(true)
+    try {
+      const res = await fetch(`/api/goals/${goal.id}/deposit`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount: parseFloat(amount) })
+      })
+      if (res.ok) {
+        onSaved()
+      } else {
+        const b = await res.json()
+        setError(b.error || 'Could not deposit funds.')
+        setSubmitting(false)
+      }
+    } catch (err) {
+      setError('Network error.')
+      setSubmitting(false)
+    }
   }
+
   return (
-    <div className="dialog-backdrop" onMouseDown={onClose}>
-      <form className="dialog" onSubmit={submit} onMouseDown={(e) => e.stopPropagation()}>
+    <div className="dialog-backdrop" onClick={(e) => { if (e.target === e.currentTarget) onClose() }}>
+      <form className="dialog" onSubmit={submit}>
         <div className="dialog-title">
           <div><p className="eyebrow">Deposit</p><h2>Deposit to {goal.title}</h2></div>
           <button className="icon-button" type="button" onClick={onClose}>×</button>
         </div>
+        {error && <p className="form-error">{error}</p>}
         <label>Deposit Amount<input autoFocus type="number" step="0.01" min="0.01" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="100.00" required /></label>
         <div className="dialog-actions">
-          <button type="button" className="secondary-button" onClick={onClose}>Cancel</button>
-          <button type="submit" className="primary-button">Deposit Funds</button>
+          <button type="button" className="secondary-button" onClick={onClose} disabled={submitting}>Cancel</button>
+          <button type="submit" className="primary-button" disabled={submitting}>{submitting ? 'Depositing...' : 'Deposit Funds'}</button>
         </div>
       </form>
     </div>
